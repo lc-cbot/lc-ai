@@ -23,30 +23,26 @@ A comprehensive onboarding wizard that discovers cloud infrastructure, identifie
 
 > **Prerequisites**: Run `/init-lc` to initialize LimaCharlie context.
 
-### API Access Pattern
+### LimaCharlie CLI Access
 
-All LimaCharlie API calls go through the `limacharlie-api-executor` sub-agent:
+All LimaCharlie operations use the `limacharlie` CLI directly:
 
+```bash
+limacharlie <noun> <verb> --oid <oid> --output yaml [flags]
 ```
-Task(
-  subagent_type="lc-essentials:limacharlie-api-executor",
-  model="sonnet",
-  prompt="Execute LimaCharlie API call:
-    - Function: <function-name>
-    - Parameters: {<params>}
-    - Return: RAW | <extraction instructions>
-    - Script path: {skill_base_directory}/../../scripts/analyze-lc-result.sh"
-)
-```
+
+For command help and discovery: `limacharlie <command> --ai-help`
 
 ### Critical Rules
 
 | Rule | Wrong | Right |
 |------|-------|-------|
-| **MCP Access** | Call `mcp__*` directly | Use `limacharlie-api-executor` sub-agent |
-| **LCQL Queries** | Write query syntax manually | Use `generate_lcql_query()` first |
+| **CLI Access** | Call MCP tools or spawn api-executor | Use `Bash("limacharlie ...")` directly |
+| **Output Format** | `--output json` | `--output yaml` (more token-efficient) |
+| **Filter Output** | Pipe to jq/yq | Use `--filter JMESPATH` to select fields |
+| **LCQL Queries** | Write query syntax manually | Use `limacharlie ai generate-query` first |
 | **Timestamps** | Calculate epoch values | Use `date +%s` or `date -d '7 days ago' +%s` |
-| **OID** | Use org name | Use UUID (call `list_user_orgs` if needed) |
+| **OID** | Use org name | Use UUID (call `limacharlie org list` if needed) |
 
 ---
 
@@ -95,16 +91,8 @@ This skill performs a complete onboarding workflow:
 
 Ask user to select the target LimaCharlie organization:
 
-```
-Task(
-  subagent_type="lc-essentials:limacharlie-api-executor",
-  model="sonnet",
-  prompt="Execute LimaCharlie API call:
-    - Function: list_user_orgs
-    - Parameters: {}
-    - Return: RAW
-    - Script path: {skill_base_directory}/../../scripts/analyze-lc-result.sh"
-)
+```bash
+limacharlie org list --output yaml
 ```
 
 Present available organizations and use AskUserQuestion to let user select one.
@@ -292,20 +280,8 @@ AskUserQuestion(
 
 Create installation keys for each logical segment:
 
-```
-Task(
-  subagent_type="lc-essentials:limacharlie-api-executor",
-  model="sonnet",
-  prompt="Execute LimaCharlie API call:
-    - Function: create_installation_key
-    - Parameters: {
-        \"oid\": \"<org-id>\",
-        \"description\": \"GCP VMs - Project X\",
-        \"tags\": [\"gcp\", \"project-x\", \"auto-onboarded\"]
-      }
-    - Return: RAW
-    - Script path: {skill_base_directory}/../../scripts/analyze-lc-result.sh"
-)
+```bash
+limacharlie installation-key create --oid <org-id> --output yaml
 ```
 
 Create separate keys for:
@@ -490,37 +466,14 @@ aws ssm list-command-invocations --command-id COMMAND_ID
 
 Wait up to 2 minutes for sensors to appear, then verify:
 
-```
-Task(
-  subagent_type="lc-essentials:limacharlie-api-executor",
-  model="sonnet",
-  prompt="Execute LimaCharlie API call:
-    - Function: list_sensors
-    - Parameters: {
-        \"oid\": \"<org-id>\",
-        \"selector\": \"iid == \\`<installation-key-iid>\\`\"
-      }
-    - Return: Count and hostnames of new sensors
-    - Script path: {skill_base_directory}/../../scripts/analyze-lc-result.sh"
-)
+```bash
+limacharlie sensor list --oid <org-id> --filter "[?iid=='<installation-key-iid>']" --output yaml
 ```
 
 Verify sensors are online:
 
-```
-Task(
-  subagent_type="lc-essentials:limacharlie-api-executor",
-  model="sonnet",
-  prompt="Execute LimaCharlie API call:
-    - Function: list_sensors
-    - Parameters: {
-        \"oid\": \"<org-id>\",
-        \"selector\": \"iid == \\`<installation-key-iid>\\`\",
-        \"online_only\": true
-      }
-    - Return: Count and hostnames of online sensors
-    - Script path: {skill_base_directory}/../../scripts/analyze-lc-result.sh"
-)
+```bash
+limacharlie sensor list --online --oid <org-id> --filter "[?iid=='<installation-key-iid>']" --output yaml
 ```
 
 Verify data is flowing (check for recent events):
@@ -531,38 +484,18 @@ start=$(date -d '5 minutes ago' +%s)
 end=$(date +%s)
 ```
 
-```
-Task(
-  subagent_type="lc-essentials:limacharlie-api-executor",
-  model="sonnet",
-  prompt="Execute LimaCharlie API call:
-    - Function: get_historic_events
-    - Parameters: {
-        \"oid\": \"<org-id>\",
-        \"sid\": \"<sensor-id>\",
-        \"start\": <start>,
-        \"end\": <end>,
-        \"limit\": 10
-      }
-    - Return: Count of events and event types
-    - Script path: {skill_base_directory}/../../scripts/analyze-lc-result.sh"
-)
+```bash
+# Generate LCQL query first - never write LCQL manually
+limacharlie ai generate-query --prompt "Find events from sensor <sensor-id> in the last 5 minutes, limit 10" --oid <org-id> --output yaml
+limacharlie search run --query "<generated-query>" --start $start --end $end --oid <org-id> --output yaml
 ```
 
 #### Cloud Adapter Verification
 
 For each cloud adapter, verify sensor appears and data flows:
 
-```
-Task(
-  subagent_type="lc-essentials:limacharlie-api-executor",
-  model="sonnet",
-  prompt="Execute LimaCharlie API call:
-    - Function: list_cloud_sensors
-    - Parameters: {\"oid\": \"<org-id>\"}
-    - Return: RAW
-    - Script path: {skill_base_directory}/../../scripts/analyze-lc-result.sh"
-)
+```bash
+limacharlie cloud-adapter list --oid <org-id> --output yaml
 ```
 
 Check for recent events from cloud sensor:
@@ -574,20 +507,14 @@ end=$(date +%s)
 
 Use LCQL to query for specific sensor data:
 
+```bash
+limacharlie ai generate-query --prompt "Find events from sensor with hostname containing 'cloudtrail' in the last 10 minutes" --oid <org-id> --output yaml
 ```
-Task(
-  subagent_type="lc-essentials:limacharlie-api-executor",
-  model="sonnet",
-  prompt="Execute LimaCharlie API call:
-    - Function: generate_lcql_query
-    - Parameters: {
-        \"oid\": \"<org-id>\",
-        \"prompt\": \"Find events from sensor with hostname containing 'cloudtrail' in the last 10 minutes\",
-        \"time_window\": \"10m\"
-      }
-    - Return: RAW
-    - Script path: {skill_base_directory}/../../scripts/analyze-lc-result.sh"
-)
+
+Then execute the generated query:
+
+```bash
+limacharlie search run --query "<GENERATED_QUERY>" --start $start --end $end --oid <org-id> --output yaml
 ```
 
 ### Phase 8: Final Report
@@ -675,7 +602,7 @@ Generate a comprehensive Markdown report:
 ### Check Sensor Status
 ```bash
 # Using LimaCharlie CLI
-limacharlie sensor list --org [OID] --tag auto-onboarded
+limacharlie sensor list --oid [OID] --tag auto-onboarded --output yaml
 ```
 
 ### Troubleshooting
@@ -721,7 +648,6 @@ Generated by LimaCharlie Onboard New Org Skill
 - `adapter-assistant` - For detailed adapter configuration
 - `sensor-coverage` - For monitoring sensor health after onboarding
 - `detection-engineering` - For creating detection rules
-- `limacharlie-call` - For direct API operations
 
 ## Reference
 

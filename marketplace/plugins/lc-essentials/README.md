@@ -1,6 +1,6 @@
 # LimaCharlie Essentials Plugin
 
-Essential LimaCharlie skills for API access, sensor management, detection engineering, and security operations. Includes 124 comprehensive skills covering core operations, historical data, forensics, detection rules, threat intelligence analysis, MSSP multi-tenant reporting, configuration management, and administration. Includes a specialized script for efficiently analyzing large API result sets.
+Essential LimaCharlie skills for CLI-based API access, sensor management, detection engineering, and security operations. Covers core operations, historical data, forensics, detection rules, threat intelligence analysis, MSSP multi-tenant reporting, configuration management, and administration.
 
 ## Important: Organization ID (OID) Requirements
 
@@ -17,7 +17,7 @@ This skill returns a mapping of organization names to their UUIDs, which you'll 
 
 **Exception - Skills that don't require a specific OID:**
 
-A small number of skills operate at the user-level or global level and **do not require a specific organization ID**. For these skills, **omit the `oid` parameter` when calling the API:
+A small number of skills operate at the user-level or global level and **do not require a specific organization ID**. For these skills, **omit the `oid` parameter** when calling the API:
 
 - **`list-user-orgs`** - Lists all organizations you have access to (user-level operation)
 - **`create-org`** - Creates a new organization (user-level operation)
@@ -47,7 +47,7 @@ Always verify the sensor type before attempting system-level queries. EDR sensor
 
 ## What It Does
 
-This plugin provides 124 comprehensive skills:
+This plugin provides comprehensive skills:
 
 ### Skills Organized by Category
 
@@ -190,28 +190,24 @@ The **sensor-health** skill orchestrates parallel sensor health checks across mu
 
 ## How It Works
 
-Skills in this plugin connect to the LimaCharlie API via MCP (Model Context Protocol) to:
+Skills in this plugin connect to the LimaCharlie API via the `limacharlie` CLI to:
 
 1. **Authenticate** using your LimaCharlie API credentials
 2. **Execute operations** against your organization(s)
-3. **Return results** in a structured, readable format
+3. **Return results** in a structured, readable YAML format
 
 Most skills require:
-- **OID**: Organization ID (UUID) - get this via `list-user-orgs`
+- **OID**: Organization ID (UUID) - get this via `limacharlie org list --output yaml`
 - **Additional parameters**: Sensor IDs, rule names, query parameters, etc.
 
-### Large Result Handling
+## Raw REST API Calls (`limacharlie api`)
 
-When API calls return large datasets (>100KB), the response includes a `resource_link` URL. To work with these large result sets:
+`limacharlie api` is an escape hatch for endpoints that have no dedicated CLI command. **Do NOT use it for operations that already have a CLI noun/verb** (e.g., use `limacharlie sensor list`, not `limacharlie api orgs/{oid}/sensors`; use `limacharlie ticket list`, not `limacharlie api "api/v1/tickets?oids={oid}" --target ticketing`). Always try `limacharlie <noun> --ai-help` first.
 
-1. **Download**: Use curl to download the resource_link to a temp file
-2. **Analyze**: Run the `analyze-lc-result.sh` script to understand the JSON structure
-3. **Extract**: Use `jq` to extract the specific information you need
-4. **Cleanup**: Remove the temp file when done
-
-The analyze script outputs a JSON schema showing object keys, array patterns, and data types, allowing you to craft precise jq queries to extract only the information you need—keeping your conversation context clean and focused.
-
-See [CALLING_API.md](./CALLING_API.md) for details on how large result handling works.
+```bash
+limacharlie api <endpoint> --oid <oid> --output yaml
+```
+`{oid}` in the endpoint path is replaced with the resolved org ID. Supports `-f key=value` (string fields), `-F key=value` (typed fields with bool/int coercion and `@file` reads), `--input <file>` for raw bodies, and `--target` to select API host (`api`, `billing`, `jwt`, `stream`, `downloads`). The CLI handles all authentication automatically.
 
 ## Documentation Coverage
 
@@ -222,8 +218,4 @@ See [CALLING_API.md](./CALLING_API.md) for details on how large result handling 
 
 ## Skills Summary
 
-See [SKILLS_SUMMARY.md](./SKILLS_SUMMARY.md) for a complete list of all 121 skills with descriptions.
-
-## API Calling Guide
-
-See [CALLING_API.md](./CALLING_API.md) for comprehensive documentation on making direct API calls to LimaCharlie.
+All skills are documented in individual `SKILL.md` files under the `skills/` directory.

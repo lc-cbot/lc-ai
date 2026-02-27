@@ -1,70 +1,119 @@
 # Using LimaCharlie
 
-## Reference Documents
+## Constants Reference
 
-These files are the **source of truth** for LimaCharlie constants and validation:
+See [CONSTANTS.md](./CONSTANTS.md) for the authoritative source of all LimaCharlie constants including platform codes, architecture codes, IOC types, timestamps, and billing amounts.
 
-- [CONSTANTS.md](CONSTANTS.md) - Platform codes, IOC types, timestamp formats, billing
-- Function docs: `skills/limacharlie-call/functions/<function-name>.md` - Parameter names
+## Raw REST API Calls (`limacharlie api`)
 
-## Required Skill
+**`limacharlie api` is an escape hatch** for endpoints that have no dedicated CLI command. Do NOT use it for operations that already have a CLI noun/verb.
 
-**ALWAYS load the `lc-essentials:limacharlie-call` skill** before any LimaCharlie API operation. Never call LimaCharlie MCP tools directly.
+- **WRONG**: `limacharlie api orgs/{oid}/sensors --oid <oid>` (use `limacharlie sensor list --oid <oid>`)
+- **WRONG**: `limacharlie api orgs/{oid}/extensions --oid <oid>` (use `limacharlie extension list --oid <oid>`)
+
+**Always try `limacharlie <noun> --ai-help` first.** Only fall back to `limacharlie api` when no CLI command exists.
+
+```bash
+limacharlie api <endpoint> --oid <oid> --output yaml
+```
+`{oid}` in the path is replaced with the resolved org ID. Supports `-f` (string fields), `-F` (typed fields, `@file`), `--input <file>`, `--target` (`api`|`billing`|`jwt`|`stream`|`downloads`). The CLI handles all authentication automatically.
+
+### Ticketing CLI
+
+The Ticketing extension (`ext-ticketing`) has first-class CLI support via `limacharlie ticket`:
+```bash
+limacharlie ticket list --oid <oid> --output yaml
+limacharlie ticket get --id <ticket_id> --oid <oid> --output yaml
+limacharlie ticket update --id <ticket_id> --status acknowledged --oid <oid> --output yaml
+limacharlie ticket add-note --id <ticket_id> --content "Note" --type analysis --oid <oid> --output yaml
+limacharlie ticket entity add --ticket <ticket_id> --type ip --value "10.0.0.1" --verdict malicious --oid <oid> --output yaml
+limacharlie ticket telemetry add --ticket <ticket_id> --atom <atom> --sid <sid> --event-type NEW_PROCESS --oid <oid> --output yaml
+```
+
+The ticketing extension auto-creates tickets from detections. Use `limacharlie ticket --ai-help` for full command reference. See the `ticket-investigation` skill for the full investigation workflow.
+
+## Required Tool
+
+**ALWAYS use the `limacharlie` CLI via Bash** for all LimaCharlie API operations. Never call MCP tools directly.
+
+## CLI Bootstrap
+
+The `limacharlie` CLI is **automatically installed** on session start via the SessionStart hook.
+If auto-install fails (shown as a yellow warning), guide the user to install manually:
+```bash
+pipx install limacharlie   # preferred (isolated environment)
+uv tool install limacharlie # alternative (fast, isolated)
+pip install --user limacharlie # fallback
+```
+
+On first use, verify authentication:
+1. Check auth: `limacharlie auth whoami --output yaml`
+2. If no auth: guide user through `limacharlie auth login`
+3. List orgs: `limacharlie org list --output yaml`
+4. Require user to specify target org(s)
+5. Check SOPs: `limacharlie sop list --oid <oid> --output yaml`
 
 ## Critical Rules
 
 **ALWAYS require the user to specify the organization or organizations they intend to operate on**, NEVER assume.
 
-### 1. Never Call MCP Tools Directly
+### 1. Use the CLI Directly
 
-- **WRONG**: `mcp__plugin_lc-essentials_limacharlie__lc_call_tool(...)`
-- **CORRECT**: Use Task tool with `subagent_type="lc-essentials:limacharlie-api-executor"`
+- **WRONG**: `mcp__plugin_lc-essentials_limacharlie__lc_call_tool(...)` or spawning an api-executor agent
+- **CORRECT**: `Bash("limacharlie <noun> <verb> --oid <oid> --output yaml")`
 
-### 2. Always Verify Function Parameters
+### 2. Always Pass `--output yaml`
 
-Before calling any LimaCharlie tool, **verify the exact parameter names** from the authoritative function documentation in `skills/limacharlie-call/functions/<function-name>.md`.
+All CLI commands should include `--output yaml` for machine-readable output that is more token-efficient than JSON.
 
-**Why:** Agent examples and other documentation may contain outdated or incorrect parameter names. The function `.md` files are the source of truth.
+### 3. Use `--filter` to Reduce Output
 
-**Example:**
-- Before calling `generate_lcql_query`, check `skills/limacharlie-call/functions/generate-lcql-query.md`
-- The file shows: `query` (not `natural_language_request` or `natural_language_query`)
+When you only need specific fields, use `--filter JMESPATH` to select them:
+```bash
+limacharlie sensor list --oid <oid> --filter "[].{sid:sid,hostname:hostname,plat:plat}" --output yaml
+```
+This reduces token usage vs returning the full response.
 
-**NEVER** rely on parameter names from:
-- Agent documentation examples
-- Skill workflow examples
-- Your own assumptions about parameter naming
+### 4. Use `--oid <uuid>` Per Command
 
-### 3. LCQL Query Handling
+Every command that operates on an organization requires `--oid <uuid>`. Use `limacharlie org list --output yaml` to discover available orgs and their OIDs.
+
+### 5. Use `--ai-help` for Command Discovery
+
+When unsure about a command's flags or usage:
+```bash
+limacharlie <command> --ai-help
+```
+
+### 6. LCQL Query Handling
 
 LCQL uses unique pipe-based syntax validated against org-specific schemas. **LLMs do NOT know correct LCQL syntax** - any manually written or AI-generated LCQL without using the generation tools will be invalid.
 
 **NEVER:**
 - Write LCQL queries manually
 - Generate LCQL queries from your own knowledge
-- Show "example" LCQL queries to users without using `generate_lcql_query()`
+- Show "example" LCQL queries to users without using the generation command
 - Assume you know LCQL syntax - you don't, and your queries WILL be wrong
 
 **ALWAYS:**
-1. `generate_lcql_query()` - Convert natural language to LCQL (required for creating any query)
-2. `validate_lcql_query()` - Verify query is valid before execution - **mandatory for ALL queries** including:
-   - Queries generated by `generate_lcql_query()`
+1. `limacharlie ai generate-query --prompt "..." --oid <oid> --output yaml` - Convert natural language to LCQL (required for creating any query)
+2. `limacharlie search validate --query "..." --oid <oid> --output yaml` - Verify query is valid before execution - **mandatory for ALL queries** including:
+   - Queries generated by the AI command
    - Queries provided by the user
    - Queries from saved queries or other sources
 3. Execute query (only after validation passes):
-   - **Prefer `run_lcql_query_free()`** - Queries past 30 days only, results are FREE
-   - **Use `run_lcql_query()`** - Only if user explicitly requests longer time frames
+   - **Prefer `limacharlie search run --query "..." --start <ts> --end <ts> --oid <oid> --output yaml`**
 
 **For queries beyond 30 days (paid queries):**
-- First call `estimate_lcql_query()` to get cost estimate
+- First call `limacharlie search estimate --query "..." --start <ts> --end <ts> --oid <oid> --output yaml` to get cost estimate
 - Show the estimated cost to the user
 - If estimate > 0, ask user to approve before running
-- Only proceed with `run_lcql_query()` after user confirmation
+- Only proceed after user confirmation
 
-If a user asks for "example LCQL queries" or "LCQL syntax", explain that LCQL is org-specific and use `generate_lcql_query()` to demonstrate with their actual schema - never fabricate examples.
+If a user asks for "example LCQL queries" or "LCQL syntax", explain that LCQL is org-specific and use the generate command to demonstrate with their actual schema - never fabricate examples.
 
 **Before generating queries:**
-- Consider calling `get_event_types_with_schemas()` to understand available event types and fields in the org
+- Consider calling `limacharlie event types --oid <oid> --output yaml` to understand available event types and fields in the org
 - This helps generate more accurate queries targeting actual data that exists
 
 **After query execution:**
@@ -77,24 +126,24 @@ If a user asks for "example LCQL queries" or "LCQL syntax", explain that LCQL is
 **On validation failure:**
 - Do NOT attempt to fix the query manually - you will make it worse
 - If original natural language request is available:
-  - Re-call `generate_lcql_query()` with the original request plus the validation error message
+  - Re-call the generate command with the original request plus the validation error message
   - Ask it to avoid the specific syntax issue
 - If original natural language request is NOT available (user-provided query, saved query, etc.):
   - Ask the user to describe what they're trying to accomplish in plain language
-  - Use their description to call `generate_lcql_query()` fresh
+  - Use their description to call the generate command fresh
 - Validate the new query again
 - If validation fails 3 times, report the issue to the user rather than continuing to retry
 
-### 4. Never Generate D&R Rules Manually
+### 7. Never Generate D&R Rules Manually
 
-Use AI generation tools:
-1. `generate_dr_rule_detection()` - Generate detection YAML
-2. `generate_dr_rule_respond()` - Generate response YAML
-3. `validate_dr_rule_components()` - Validate before deploy
+Use AI generation commands:
+1. `limacharlie ai generate-detection --description "..." --oid <oid> --output yaml` - Generate detection YAML
+2. `limacharlie ai generate-response --description "..." --oid <oid> --output yaml` - Generate response YAML
+3. `limacharlie dr validate --detect detect.yaml --respond respond.yaml --oid <oid>` - Validate before deploy (takes file paths)
 
-### 5. Never Calculate Timestamps Manually
+### 8. Never Calculate Timestamps Manually
 
-LLMs consistently produce incorrect timestamp values. See [CONSTANTS.md](CONSTANTS.md) for format reference.
+LLMs consistently produce incorrect timestamp values.
 
 **ALWAYS use bash:**
 ```bash
@@ -117,30 +166,29 @@ now=$(date +%s)           # e.g., 1737312000
 start=$(date -d '24 hours ago' +%s)  # e.g., 1737225600
 
 # Verify before API call
-# now=1737312000, start=1737225600, start < now ✓
+# now=1737312000, start=1737225600, start < now check
 ```
 
-### 6. OID is UUID, NOT Organization Name
+### 9. OID is UUID, NOT Organization Name
 
-- **WRONG**: `oid: "my-org-name"`
-- **CORRECT**: `oid: "c1ffedc0-ffee-4a1e-b1a5-abc123def456"`
-- Use `get_org_oid_by_name` to convert a single org name to OID (cached, efficient)
-- Use `list_user_orgs` to list all accessible orgs with their OIDs
+- **WRONG**: `--oid "my-org-name"`
+- **CORRECT**: `--oid "c1ffedc0-ffee-4a1e-b1a5-abc123def456"`
+- Use `limacharlie org list --output yaml` to list all accessible orgs with their OIDs
 
-### 7. Timestamp Milliseconds vs Seconds
+### 10. Timestamp Milliseconds vs Seconds
 
 - Detection/event data: **milliseconds** (13 digits)
-- API parameters (`get_historic_events`, `get_historic_detections`): **seconds** (10 digits)
+- API parameters: **seconds** (10 digits)
 - **ALWAYS** divide by 1000 when using detection timestamps for API queries
 
-### 8. Never Fabricate Data
+### 11. Never Fabricate Data
 
 - Only report what APIs return
 - Never estimate, infer, or extrapolate data
 - Show "N/A" or "Data unavailable" for missing fields
 - Never calculate costs (no pricing data in API)
 
-### 9. Spawn Agents in Parallel
+### 12. Spawn Agents in Parallel
 
 When processing multiple organizations or items:
 - Use a SINGLE message with multiple Task calls
@@ -155,8 +203,8 @@ Organizations can define SOPs (Standard Operating Procedures) in LimaCharlie tha
 
 Before running LimaCharlie operations:
 
-**List all SOPs** using `list_sops` for each organization in scope, extracting only the name of the SOP and the `description` field.
-**During operations** if an SOP description sounds like it applies to the current operation, call `get_sop` to get the actual procedure.
+**List all SOPs** using `limacharlie sop list --oid <oid> --output yaml` for each organization in scope, extracting only the name of the SOP and the `description` field.
+**During operations** if an SOP description sounds like it applies to the current operation, call `limacharlie sop get --key <name> --oid <oid> --output yaml` to get the actual procedure.
 **Take into account** the contents of the fetched SOP, if a match is found, announce: "Following SOP: [sop-name] - [description]"
 
 ### Example Workflow
@@ -165,7 +213,7 @@ Before running LimaCharlie operations:
 2. LLM lists SOPs on org 123: "malware-response" => description: "Standard procedure for malware incidents"
 3. User asks to investigate a malware alert on org 123
 4. LLM announces: "Following SOP: malware-response - Standard procedure for malware incidents"
-5. LLM recognizes the "malware-response" SOP relates to this and calls `get_sop(name="malware-response")` to load the full procedure
+5. LLM recognizes the "malware-response" SOP relates to this and loads the full procedure
 6. LLM follows the documented steps from the loaded SOP content
 
 ## Sensor Selector Reference
@@ -219,7 +267,7 @@ ext_plat == windows                       # Carbon Black/Crowdstrike reporting W
 ```
 
 ### Extensions
-Not all extensions have a configuration, to determine if an extension is subscribed to, use `list-extension-subscriptions`.
+Not all extensions have a configuration, to determine if an extension is subscribed to, use `limacharlie extension list --oid <oid> --output yaml`.
 
 ### Billing, Features and Functionality
 Don't assume you know anything about how LimaCharlie is billed, pricing structure, features etc. Use the documentation to ground your information: https://github.com/refractionPOINT/documentation/tree/master/docs/limacharlie/doc

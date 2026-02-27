@@ -2,8 +2,7 @@
 name: dr-replay-tester
 description: Test D&R rules via historical replay against a SINGLE LimaCharlie organization. Designed to be spawned in parallel (one instance per org) by the detection-engineering skill. Returns summarized results (stats, samples, patterns) instead of all matches.
 model: sonnet
-skills:
-  - lc-essentials:limacharlie-call
+skills: []
 ---
 
 # Single-Organization D&R Rule Replay Tester
@@ -56,25 +55,33 @@ Parse the prompt to extract:
 
 ### Step 2: Calculate Time Range
 
-Convert time windows to seconds:
-- "last 1 hour" → `last_seconds: 3600`
-- "last 24 hours" → `last_seconds: 86400`
-- "last 7 days" → `last_seconds: 604800`
-
-### Step 3: Run Replay
-
-Use the `replay_dr_rule` function:
-
+Use bash to calculate start/end timestamps:
+```bash
+start=$(date -d '1 hour ago' +%s)   # or '24 hours ago', '7 days ago'
+end=$(date +%s)
 ```
-tool: replay_dr_rule
-parameters: {
-  "oid": "<org-uuid>",
-  "detect": <detection_rule>,
-  "respond": <response_rule>,
-  "last_seconds": <calculated>,
-  "selector": "<sensor_selector>",
-  "limit_event": 10000
-}
+
+### Step 3: Deploy Temp Rule and Run Replay
+
+The replay CLI requires a deployed rule name. Deploy the rule as a temporary test rule, replay, then clean up:
+
+```bash
+# Write rule to temp file
+cat > /tmp/rule.yaml << 'EOF'
+detect:
+  <detection_rule>
+respond:
+  <response_rule>
+EOF
+
+# Deploy temp rule
+limacharlie dr set --key temp-replay-test --input-file /tmp/rule.yaml --oid <org-uuid>
+
+# Run replay
+limacharlie dr replay --name temp-replay-test --start $start --end $end --oid <org-uuid> --output yaml
+
+# Clean up
+limacharlie dr delete --key temp-replay-test --oid <org-uuid>
 ```
 
 ### Step 4: Analyze Results
@@ -228,8 +235,8 @@ Since you run in parallel with other instances:
 ## Your Workflow Summary
 
 1. Parse prompt → extract org ID, detection, time window, selector
-2. Convert time window to `last_seconds`
-3. Run `replay_dr_rule` with extracted parameters
+2. Calculate start/end timestamps with bash `date`
+3. Deploy temp rule with `limacharlie dr set`, replay with `limacharlie dr replay`, then delete temp rule
 4. Analyze results → calculate stats, extract samples, find patterns
 5. Return concise summary for this org only
 
