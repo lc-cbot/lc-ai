@@ -8,23 +8,13 @@ Each SOC is a self-contained collection of AI agents that work together to detec
 
 Unlike standalone agents that operate independently, SOC agents form a **coordinated pipeline**. They communicate through the ticketing system: when one agent updates a ticket (changes status, adds a tag, writes a note), the ext-ticketing webhook emits an audit event that D&R rules match on to trigger the next agent in the chain.
 
-```
-Agent A updates ticket (status/tags/notes)
-    |
-    v
-ext-ticketing emits webhook audit event
-    |
-    v
-D&R rule matches event type + metadata
-    |
-    v
-D&R rule triggers Agent B via "start ai agent"
-    |
-    v
-Agent B reads ticket, does work, updates ticket
-    |
-    v
-... cycle continues ...
+```mermaid
+flowchart TD
+    A["Agent A updates ticket<br/>(status/tags/notes)"] --> B["ext-ticketing emits<br/>webhook audit event"]
+    B --> C["D&R rule matches<br/>event type + metadata"]
+    C --> D["D&R rule triggers Agent B<br/>via 'start ai agent'"]
+    D --> E["Agent B reads ticket,<br/>does work, updates ticket"]
+    E -->|"cycle continues"| A
 ```
 
 This event-driven architecture means agents are:

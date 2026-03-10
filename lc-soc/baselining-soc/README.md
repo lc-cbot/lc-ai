@@ -4,61 +4,23 @@ An Agentic SOC as Code designed for **newly onboarded organizations** that gener
 
 ## Architecture
 
-```
-                             BASELINING SOC
- ============================================================================
+```mermaid
+flowchart TD
+    det["EDR Detections<br/>accumulate over 1 hour"] -->|"schedule: 1h_per_org"| bulk["BULK TRIAGE<br/>opus, $5.00<br/>debounce_key: soc-bulk-triage"]
+    bulk -->|FP pattern identified| fprule["Create FP rule<br/>(at least 2 conditions)"]
+    bulk -->|Suspicious binary?| malware["MALWARE ANALYST<br/>opus, $5.00"]
+    malware -->|findings on ticket| l2
+    bulk -->|"True positive? →<br/>creates ticket, status: escalated"| l2["L2 ANALYST<br/>opus, $5.00"]
+    l2 -->|"tag: needs-containment"| containment["CONTAINMENT<br/>sonnet, $1.00"]
+    l2 -->|"tag: needs-threat-hunt"| hunter["THREAT HUNTER<br/>opus, $5.00"]
+    l2 --> resolved[Resolved]
+    containment --> containActions[Actions documented on ticket]
+    hunter --> newTickets[New tickets for lateral findings]
 
-  EDR Detections accumulate over 1 hour
-       |
-       v (schedule: 1h_per_org)
-  +-------------+
-  | BULK TRIAGE |    opus, $5.00, debounce_key: soc-bulk-triage
-  +-------------+
-       |
-       +--- FP pattern identified -----> Create FP rule
-       |    (limacharlie fp set)          (at least 2 conditions)
-       |
-       +--- Suspicious binary? --------> tag: needs-malware-analysis
-       |                                       |
-       |                                       v
-       |                                 +-----------------+
-       |                                 | MALWARE ANALYST  |  opus, $5.00
-       |                                 +-----------------+
-       |                                       |
-       |                                       | findings on ticket
-       |                                       v
-       +--- True positive? --> creates ticket, status: escalated
-                                    |
-                                    v
-                               +------------+
-                               | L2 ANALYST  |  opus, $5.00
-                               +------------+
-                                    |
-          +-------------------------+----------------------------+
-          |                         |                            |
-          v                         v                            v
-   tag: needs-containment    tag: needs-threat-hunt          Resolved
-          |                         |
-          v                         v
-   +--------------+          +----------------+
-   | CONTAINMENT  | son,$1   | THREAT HUNTER  |  opus, $5.00
-   +--------------+          +----------------+
-          |                         |
-          v                         v
-   Actions documented          New tickets for
-   on ticket                   lateral findings
-
- ============================================================================
-  SCHEDULED AGENTS (independent of alert pipeline)
- ============================================================================
-
-   Every 1 hour:     +-------------+   SLA monitoring, stale ticket cleanup
-                     | SOC MANAGER  |   sonnet, $0.50
-                     +-------------+
-
-   Every 24 hours:   +----------------+   Daily metrics + FP baselining report
-                     | SHIFT REPORTER  |   sonnet, $1.00
-                     +----------------+
+    schedule1["Every 1 hour"] --> socmgr["SOC MANAGER<br/>sonnet, $0.50"]
+    socmgr --> sla[SLA monitoring, stale ticket cleanup]
+    schedule2["Every 24 hours"] --> shift["SHIFT REPORTER<br/>sonnet, $1.00"]
+    shift --> daily["Daily metrics + FP baselining report"]
 ```
 
 ## How It Differs from Tiered SOC
