@@ -12,7 +12,7 @@ allowed-tools:
 
 You are an expert SOC analyst. Your job is to triage and investigate security cases, telling the complete story of what happened, enabling analysts to understand scope, make decisions, and take action.
 
-Cases in LimaCharlie are auto-created from detections by the Cases extension (`ext-cases`). Each detection becomes a case that must be acknowledged, investigated, classified (true positive or false positive), and resolved within SLA targets.
+Cases in LimaCharlie are created by the Cases extension (`ext-cases`). Detections are ingested into cases via D&R rules and extension requests (not LC Outputs). Each detection becomes a case that must be acknowledged, investigated, classified (true positive or false positive), and resolved within SLA targets. Cases can also be created manually without detections for tracking ad-hoc investigations or externally reported incidents.
 
 **CRITICAL: Investigations must be HOLISTIC.** Don't just trace a process tree. Ask the bigger questions:
 - Where did this threat come from? (Initial access)
@@ -44,6 +44,7 @@ The Cases extension has first-class CLI support via `limacharlie case`:
 limacharlie case list --oid <oid> --output yaml
 limacharlie case get --id <case_number> --oid <oid> --output yaml
 limacharlie case update --id <case_number> --status acknowledged --oid <oid> --output yaml
+limacharlie case update --id <case_number> --severity high --oid <oid> --output yaml
 limacharlie case add-note --id <case_number> --content "Note text" --type analysis --oid <oid> --output yaml
 limacharlie case tag set --id <case_number> --tag <tag> --oid <oid> --output yaml
 limacharlie case tag add --id <case_number> --tag <tag> --oid <oid> --output yaml
@@ -251,9 +252,9 @@ limacharlie case get --id <case_number> --oid <oid> --output yaml
 limacharlie case list --status new --status acknowledged --oid <oid> --output yaml
 ```
 
-**From a Detection ID** (find associated case):
+**From a Detection** (find associated case by category or hostname):
 ```bash
-limacharlie case list --search <detection_cat> --oid <oid> --output yaml
+limacharlie case list --search <search_term> --oid <oid> --output yaml
 ```
 
 If no case exists for the activity being investigated, you can still investigate using LC telemetry and create findings - just document the results and help the user decide whether to create a case manually or link findings to an existing case.
@@ -276,7 +277,7 @@ limacharlie case update --id <case_number> --status in_progress --oid <oid> --ou
 
 ### Step 4: Get the Source Detection
 
-Extract the detection details from the case's `detection_id`:
+Extract the detection details from the case's `detections` array (each entry contains a `detection_id`):
 ```bash
 limacharlie detection get --id <detection-id> --oid <oid> --output yaml
 ```
@@ -780,16 +781,11 @@ limacharlie case entity add --case <case_number> \
 
 ### Adding Detections
 
-Link additional detections discovered during investigation:
+Link additional detections discovered during investigation (pass the full detection JSON object):
 
 ```bash
 limacharlie case detection add --case <case_number> \
-    --detection-id "<detection-id>" \
-    --detection-cat "Encoded PowerShell" \
-    --detection-source "general" \
-    --detection-priority 7 \
-    --sensor-id "<sid>" \
-    --hostname "DESKTOP-001" \
+    --detection '<full detection JSON>' \
     --oid <oid> --output yaml
 ```
 
@@ -817,6 +813,10 @@ limacharlie case add-note --id <case_number> --type analysis --input-file /tmp/n
 | `remediation` | Remediation actions taken or recommended | "Isolated host via network isolation. Recommend password reset for compromised account." |
 | `escalation` | Escalation context and rationale | "Escalating to Tier 3 - evidence of APT-level tradecraft with custom tooling" |
 | `handoff` | Shift handoff or transfer context | "Investigation paused at Phase 3. Org-wide IOC search complete, lateral movement analysis pending." |
+| `to_stakeholder` | Notes/communications sent TO external stakeholders (e.g. customers, management) | "Notified customer of confirmed breach. Provided initial IOC list and recommended password resets." |
+| `from_stakeholder` | Notes/communications received FROM external stakeholders | "Customer confirmed affected user was traveling and using hotel WiFi during the timeframe." |
+
+Notes also support an `is_public` boolean flag. When set to `true`, the note is marked as visible to stakeholders and may be shared externally. Defaults to `false` (internal only).
 
 **Invalid types will cause API errors.** Do NOT use types like "observation", "hypothesis", "finding", "conclusion", etc.
 
@@ -996,6 +996,9 @@ limacharlie case list --status new --status acknowledged --severity critical --s
 
 # Assigned to a specific analyst
 limacharlie case list --assignee analyst@example.com --oid <oid> --output yaml
+
+# Filter by sensor ID
+limacharlie case list --sensor-id <sid> --oid <oid> --output yaml
 ```
 
 ### Dashboard (case counts)
@@ -1050,12 +1053,12 @@ limacharlie case bulk-update --numbers <num1>,<num2>,<num3> \
 
 **Classification values**: `pending`, `true_positive`, `false_positive`
 
-**Severity values**: `critical`, `high`, `medium`, `low`
+**Severity values**: `critical`, `high`, `medium`, `low`, `info`
 
 **Verdict values**: `malicious`, `suspicious`, `benign`, `unknown`, `informational`
 
 **Entity types**: `ip`, `domain`, `hash`, `url`, `user`, `email`, `file`, `process`, `registry`, `other`
 
-**Note types**: `general`, `analysis`, `remediation`, `escalation`, `handoff`
+**Note types**: `general`, `analysis`, `remediation`, `escalation`, `handoff`, `to_stakeholder`, `from_stakeholder`
 
 **Tag management**: `limacharlie case tag set/add/remove --id <number> --tag <tag> --oid <oid>`

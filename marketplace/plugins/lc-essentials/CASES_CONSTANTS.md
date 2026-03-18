@@ -28,7 +28,7 @@
 
 ## Severity
 
-Derived from detection priority (0-10) using configurable thresholds.
+Initially derived from detection priority (0-10) using configurable thresholds. Severity can also be updated manually via `limacharlie case update --severity <level>`.
 
 | Severity | Default Priority Range | SLA: MTTA | SLA: MTTR |
 |----------|----------------------|-----------|-----------|
@@ -36,6 +36,7 @@ Derived from detection priority (0-10) using configurable thresholds.
 | `high` | 5-7 | 15 min | 12 hours |
 | `medium` | 3-4 | 60 min | 24 hours |
 | `low` | 0-2 | 100 min | ~47 hours |
+| `info` | *(manual only)* | 480 min | 7 days |
 
 ## Classification
 
@@ -81,6 +82,12 @@ Used for entities, telemetry references, and artifacts.
 | `remediation` | Remediation steps taken or recommended |
 | `escalation` | Escalation rationale and context |
 | `handoff` | Shift handoff or analyst transition notes |
+| `to_stakeholder` | Notes/communications sent TO external stakeholders (e.g. customers, management) |
+| `from_stakeholder` | Notes/communications received FROM external stakeholders |
+
+## Note Visibility
+
+Notes support an `is_public` boolean flag. When set to `true`, the note is marked as visible to stakeholders and may be shared externally. Defaults to `false` (internal only).
 
 ## Tags
 
