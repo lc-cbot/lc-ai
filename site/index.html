@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LC/AI - Agentic SecOps, Defined as Code</title>
+  <meta name="description" content="Open-source AI-powered security operations. 7 pre-built teams, 31+ agents, production-ready. Every prompt is open source. Every dollar is transparent.">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Top nav -->
+  <nav class="topnav" id="topnav">
+    <a href="#" class="topnav-logo">LC<span class="topnav-slash">/</span>AI</a>
+    <a href="https://github.com/refractionPOINT/lc-ai" target="_blank" rel="noopener" class="topnav-gh">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+      GitHub
+    </a>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero" id="hero">
+    <canvas id="hero-canvas"></canvas>
+    <div class="hero-content">
+      <div class="hero-eyebrow">Open Source &middot; Apache 2.0 &middot; LimaCharlie</div>
+      <h1 class="hero-title">
+        <span class="hero-line hero-line-1">Agentic</span>
+        <span class="hero-line hero-line-2">Sec<span class="accent">Ops</span></span>
+      </h1>
+      <p class="hero-sub">AI-powered security operations, defined as code.</p>
+    </div>
+  </section>
+
+  <!-- TEAMS SECTION -->
+  <section class="teams-section" id="teams">
+    <div class="section-header reveal">
+      <span class="section-eyebrow">The Main Event</span>
+      <h2 class="section-title">SOC Teams</h2>
+      <p class="section-desc">Each team is a coordinated pipeline of specialized AI agents. Scroll through to see the architecture of each.</p>
+    </div>
+
+    <!-- Tiered SOC -->
+    <div class="team-block reveal" id="team-tiered-soc">
+      <div class="team-intro">
+        <div class="team-badge">8 Agents</div>
+        <h3 class="team-name">Tiered SOC</h3>
+        <p class="team-desc">Full-featured Agentic SOC modeled after the traditional L1/L2/L3 structure. Eight specialized agents form a coordinated pipeline that handles the complete alert lifecycle.</p>
+        <div class="team-meta">
+          <span class="team-cost"><span class="mono">$0.10 - $15.00</span> /alert</span>
+          <a href="https://github.com/refractionPOINT/lc-ai/tree/master/ai-teams/tiered-soc/" target="_blank" rel="noopener" class="team-gh-link" title="View on GitHub"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg></a>
+          <span class="team-bestfor">Best for: stable orgs wanting defense-in-depth</span>
+        </div>
+      </div>
+      <div class="network-diagram" data-team="tiered-soc"></div>
+    </div>
+
+    <!-- Lean SOC -->
+    <div class="team-block reveal" id="team-lean-soc">
+      <div class="team-intro">
+        <div class="team-badge">4 Agents</div>
+        <h3 class="team-name">Lean SOC</h3>
+        <p class="team-desc">Minimal Agentic SOC built for maximum autonomy with minimum complexity. Four agents handle the complete alert lifecycle without specialized tiers.</p>
+        <div class="team-meta">
+          <span class="team-cost"><span class="mono">$0.10 - $8.00</span> /alert</span>
+          <a href="https://github.com/refractionPOINT/lc-ai/tree/master/ai-teams/lean-soc/" target="_blank" rel="noopener" class="team-gh-link" title="View on GitHub"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg></a>
+          <span class="team-bestfor">Best for: smaller orgs or getting started fast</span>
+        </div>
+      </div>
+      <div class="network-diagram" data-team="lean-soc"></div>
+    </div>
+
+    <!-- Baselining SOC -->
+    <div class="team-block reveal" id="team-baselining-soc">
+      <div class="team-intro">
+        <div class="team-badge">7 Agents</div>
+        <h3 class="team-name">Baselining SOC</h3>
+        <p class="team-desc">Designed for newly onboarded organizations with high false positive volume. Processes detections in hourly batches and aggressively creates FP rules to reduce noise.</p>
+        <div class="team-meta">
+          <span class="team-cost"><span class="mono">~$5.00</span> /hr bulk</span>
+          <a href="https://github.com/refractionPOINT/lc-ai/tree/master/ai-teams/baselining-soc/" target="_blank" rel="noopener" class="team-gh-link" title="View on GitHub"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg></a>
+          <span class="team-bestfor">Best for: new orgs with noisy detections</span>
+        </div>
+      </div>
+      <div class="network-diagram" data-team="baselining-soc"></div>
+    </div>
+
+    <!-- Intel Team -->
+    <div class="team-block reveal" id="team-intel-team">
+      <div class="team-intro">
+        <div class="team-badge">3 Agents</div>
+        <h3 class="team-name">Intel Team</h3>
+        <p class="team-desc">Three-agent pipeline that runs daily to collect open-source threat intelligence, analyze it against your org's platform profile, and produce detection rules and IOC lookups.</p>
+        <div class="team-meta">
+          <span class="team-cost"><span class="mono">~$12.00</span> /day max</span>
+          <a href="https://github.com/refractionPOINT/lc-ai/tree/master/ai-teams/intel-team/" target="_blank" rel="noopener" class="team-gh-link" title="View on GitHub"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg></a>
+          <span class="team-bestfor">Best for: automated daily threat intel pipeline</span>
+        </div>
+      </div>
+      <div class="network-diagram" data-team="intel-team"></div>
+    </div>
+
+    <!-- Exposure Team -->
+    <div class="team-block reveal" id="team-exposure-team">
+      <div class="team-intro">
+        <div class="team-badge">3 Agents</div>
+        <h3 class="team-name">Exposure Monitor</h3>
+        <p class="team-desc">AI-powered SOC that runs daily to discover, scan, and report on your organization's external attack surface using free OSINT sources. No API keys beyond LC and Anthropic.</p>
+        <div class="team-meta">
+          <span class="team-cost"><span class="mono">~$4.50</span> /day max</span>
+          <a href="https://github.com/refractionPOINT/lc-ai/tree/master/ai-teams/exposure-team/" target="_blank" rel="noopener" class="team-gh-link" title="View on GitHub"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg></a>
+          <span class="team-bestfor">Best for: automated external attack surface management</span>
+        </div>
+      </div>
+      <div class="network-diagram" data-team="exposure-team"></div>
+    </div>
+
+    <!-- BAS Team -->
+    <div class="team-block reveal" id="team-bas-team">
+      <div class="team-intro">
+        <div class="team-badge">2 Agents</div>
+        <h3 class="team-name">Breach &amp; Attack Simulation</h3>
+        <p class="team-desc">Daily automated breach simulation using Atomic Red Team (MITRE ATT&CK). Executes realistic multi-step attack scenarios, evaluates detection coverage, and engineers D&R rules for gaps.</p>
+        <div class="team-meta">
+          <span class="team-cost"><span class="mono">~$18.00</span> /day max</span>
+          <a href="https://github.com/refractionPOINT/lc-ai/tree/master/ai-teams/bas-team/" target="_blank" rel="noopener" class="team-gh-link" title="View on GitHub"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg></a>
+          <span class="team-bestfor">Best for: continuous detection validation and MDR coverage</span>
+        </div>
+      </div>
+      <div class="network-diagram" data-team="bas-team"></div>
+    </div>
+
+    <!-- MDR Hunting Pipeline -->
+    <div class="team-block reveal" id="team-mdr-hunting">
+      <div class="team-intro">
+        <div class="team-badge">4 Agents</div>
+        <h3 class="team-name">MDR Hunting Pipeline</h3>
+        <p class="team-desc">MSSP-oriented threat intelligence, detection engineering, and proactive threat hunting pipeline. Runs daily in a central org and operates across all tenant organizations.</p>
+        <div class="team-meta">
+          <span class="team-cost"><span class="mono">~$32.00</span> /day max</span>
+          <a href="https://github.com/refractionPOINT/lc-ai/tree/master/ai-teams/mdr-hunting-pipeline-team/" target="_blank" rel="noopener" class="team-gh-link" title="View on GitHub"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg></a>
+          <span class="team-bestfor">Best for: MSSPs wanting automated cross-tenant threat hunting</span>
+        </div>
+      </div>
+      <div class="network-diagram" data-team="mdr-hunting"></div>
+    </div>
+  </section>
+
+  <!-- STANDALONE AGENTS -->
+  <section class="agents-section" id="agents">
+    <div class="section-header reveal">
+      <span class="section-eyebrow">Mix &amp; Match</span>
+      <h2 class="section-title">Standalone Agents</h2>
+      <p class="section-desc">Deploy individually or combine with teams. Each agent is self-contained with its own prompt, budget, and trigger.</p>
+    </div>
+    <div class="agents-list reveal">
+      <!-- Rendered by JS -->
+    </div>
+  </section>
+
+  <!-- CLAUDE CODE SKILLS -->
+  <section class="skills-section" id="skills">
+    <div class="section-header reveal">
+      <span class="section-eyebrow">For Practitioners</span>
+      <h2 class="section-title">Claude Code Skills</h2>
+      <p class="section-desc">Two plugin packs for Claude Code that bring LimaCharlie operations into your terminal. Interactive security workflows, not just chat.</p>
+    </div>
+    <div class="skills-grid reveal">
+      <div class="skills-plugin">
+        <h4 class="skills-plugin-name">lc-essentials</h4>
+        <div class="skills-entries">
+          <div class="skill-entry"><span class="skill-name">detection-engineering</span><span class="skill-desc">Create and test D&R rules with guided workflows</span></div>
+          <div class="skill-entry"><span class="skill-name">detection-tuner</span><span class="skill-desc">Investigate noisy alerts and create FP rules</span></div>
+          <div class="skill-entry"><span class="skill-name">investigation-creation</span><span class="skill-desc">Holistic case investigation from Cases extension</span></div>
+          <div class="skill-entry"><span class="skill-name">sensor-health</span><span class="skill-desc">Sensor connectivity and fleet health reports</span></div>
+          <div class="skill-entry"><span class="skill-name">sensor-tasking</span><span class="skill-desc">Send commands to EDR sensors, collect responses</span></div>
+          <div class="skill-entry"><span class="skill-name">fleet-payload-tasking</span><span class="skill-desc">Deploy payloads and commands fleet-wide</span></div>
+          <div class="skill-entry"><span class="skill-name">velociraptor</span><span class="skill-desc">Velociraptor DFIR integration for forensic collections</span></div>
+          <div class="skill-entry"><span class="skill-name">lookup-lc-doc</span><span class="skill-desc">Search and retrieve LimaCharlie documentation</span></div>
+          <div class="skill-entry"><span class="skill-name">web-ui-link</span><span class="skill-desc">Generate URLs for LimaCharlie web UI features</span></div>
+        </div>
+      </div>
+      <div class="skills-plugin">
+        <h4 class="skills-plugin-name">lc-advanced-skills</h4>
+        <div class="skills-entries">
+          <div class="skill-entry"><span class="skill-name">lc-deployer</span><span class="skill-desc">Deploy and manage AI agent/team definitions</span></div>
+          <div class="skill-entry"><span class="skill-name">limacharlie-iac</span><span class="skill-desc">Infrastructure as Code with ext-git-sync</span></div>
+          <div class="skill-entry"><span class="skill-name">onboard-new-org</span><span class="skill-desc">Complete org onboarding wizard with cloud discovery</span></div>
+          <div class="skill-entry"><span class="skill-name">sensor-coverage</span><span class="skill-desc">Asset inventory, coverage gaps, and risk scoring</span></div>
+          <div class="skill-entry"><span class="skill-name">reporting</span><span class="skill-desc">Multi-tenant security and operational reports</span></div>
+          <div class="skill-entry"><span class="skill-name">graphic-output</span><span class="skill-desc">Interactive HTML dashboards with D3.js charts</span></div>
+          <div class="skill-entry"><span class="skill-name">threat-report-evaluation</span><span class="skill-desc">Evaluate threat reports and hunt for IOCs across orgs</span></div>
+          <div class="skill-entry"><span class="skill-name">fp-pattern-finder</span><span class="skill-desc">Detect false positive patterns with deterministic analysis</span></div>
+          <div class="skill-entry"><span class="skill-name">adapter-assistant</span><span class="skill-desc">Complete adapter lifecycle for cloud and on-prem sources</span></div>
+          <div class="skill-entry"><span class="skill-name">parsing-helper</span><span class="skill-desc">Customize and test Grok parsing for log sources</span></div>
+          <div class="skill-entry"><span class="skill-name">test-limacharlie-edr</span><span class="skill-desc">Deploy a temporary EDR agent for local testing</span></div>
+          <div class="skill-entry"><span class="skill-name">test-limacharlie-adapter</span><span class="skill-desc">Deploy a temporary adapter for log ingestion testing</span></div>
+          <div class="skill-entry"><span class="skill-name">init-cases-to-slack</span><span class="skill-desc">Automated Slack notifications for case events</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER CTA -->
+  <section class="footer-section" id="footer">
+    <div class="footer-content reveal">
+      <h2 class="footer-title">Get Started</h2>
+      <p class="footer-desc">Clone the repo. Pick a team. Deploy to your LimaCharlie org.</p>
+      <div class="footer-links">
+        <a href="https://github.com/refractionPOINT/lc-ai" target="_blank" rel="noopener" class="footer-btn footer-btn-primary">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+          View on GitHub
+        </a>
+        <a href="https://docs.limacharlie.io" target="_blank" rel="noopener" class="footer-btn footer-btn-secondary">
+          Read the Docs
+        </a>
+      </div>
+      <div class="footer-license">Open Source &middot; Apache 2.0 &middot; Built by <a href="https://limacharlie.io" target="_blank" rel="noopener">LimaCharlie</a></div>
+    </div>
+  </section>
+
+  <script src="script.js"></script>
+</body>
+</html>
