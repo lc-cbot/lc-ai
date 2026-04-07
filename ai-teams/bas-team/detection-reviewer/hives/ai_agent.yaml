@@ -380,120 +380,44 @@ hives:
 
           ### Step 9: Write BAS Report
 
-          Add the report to the case. This report should be CUSTOMER-READY — MDR providers
-          can share it directly with their clients as evidence of continuous security validation.
+          Add the report to the case as a case note. This report should be useful and
+          actionable — focus on what actually happened, not boilerplate.
 
           IMPORTANT: Case notes have a maximum content length. Keep each note concise. If the
-          report is long, split it into 2-3 separate notes (e.g., scorecard + gap analysis +
-          recommendations). Aim for under 3000 characters per note.
+          report is long, split it into 2-3 separate notes. Aim for under 3000 characters per note.
 
+          The report MUST contain only information derived from the actual simulation results.
+          Do NOT include any generic boilerplate, static advice, or filler text. Every sentence
+          should reference specific data from this run.
+
+          Required sections (write these based on your actual findings):
+
+          1. **Executive Summary**: What scenario was run, on what target, coverage percentage,
+             and whether new rules were created. 2-3 sentences of substance.
+
+          2. **Detection Coverage Scorecard**: Table of each technique with detected/missed status,
+             the detection rule name that caught it (if any), and time-to-detect.
+             Include overall and per-tactic coverage percentages.
+
+          3. **Gap Analysis** (only if gaps exist): For each undetected technique, explain what
+             telemetry was or wasn't available and what remediation was taken (rule created, or
+             telemetry gap that needs operator action).
+
+          4. **New D&R Rules** (only if rules were created): Table with rule name, what it detects,
+             test results, replay results, and a deep link:
+             `https://app.limacharlie.io/orgs/<oid>/dr-rules/<rule-name>`
+
+          5. **Historical Trend** (only if BAS history has prior runs): Coverage trend table
+             showing improvement or regression over time.
+
+          6. **Recommendations**: Specific, actionable next steps based on THIS run's findings.
+             Do NOT include generic advice. Every recommendation must reference a specific gap,
+             technique, or finding from the current simulation.
+
+          Write the report to a temp file and add it as a case note:
           ```bash
           cat > /tmp/bas-report.md << 'REPORTEOF'
-          ## Breach & Attack Simulation Report
-
-          **Date**: <YYYY-MM-DD>
-          **Target**: <hostname> (<platform>)
-          **Scenario**: <theme_name>
-          **Narrative**: <attack narrative from executor>
-
-          ---
-
-          ### Executive Summary
-
-          A <theme_name> scenario was simulated on <hostname> targeting <N> MITRE ATT&CK techniques
-          across the <tactic1>, <tactic2>, and <tactic3> tactics. Detection coverage was **<X>%**
-          (<detected>/<total> techniques detected). <If gaps exist: N new D&R rules were created to
-          close detected gaps.> <If no gaps: All simulated techniques were successfully detected.>
-
-          ---
-
-          ### Detection Coverage Scorecard
-
-          | # | Technique | Name | Tactic | Detected | Detection Rule | MTTD |
-          |---|-----------|------|--------|----------|---------------|------|
-          | 1 | T1082 | System Information Discovery | Discovery | YES | rule-name | 12s |
-          | 2 | T1059.001 | PowerShell | Execution | YES | rule-name | 45s |
-          | 3 | T1003.001 | LSASS Memory | Credential Access | NO | — | — |
-
-          **Overall Coverage: <detected>/<total> (<X>%)**
-
-          #### Coverage by Tactic
-          | Tactic | Tested | Detected | Coverage |
-          |--------|--------|----------|----------|
-          | Discovery | N | N | X% |
-          | Execution | N | N | X% |
-          | Credential Access | N | N | X% |
-
-          ---
-
-          ### Detection Performance
-
-          - **Mean Time to Detect (MTTD)**: <N> seconds
-          - **Fastest Detection**: <technique> — <N>s
-          - **Slowest Detection**: <technique> — <N>s
-
-          ---
-
-          ### Gap Analysis
-
-          <For each undetected technique:>
-
-          #### <technique_id> — <name> (<tactic>)
-          - **Status**: Not detected
-          - **Telemetry Available**: <Yes/Partial/No>
-          - **Root Cause**: <e.g., "No D&R rule exists for this technique", "Telemetry events were
-            present (NEW_PROCESS with cmd.exe /c systeminfo) but no rule matched">
-          - **Remediation**: <e.g., "New rule `bas-t1082-system-enum` created (DISABLED)",
-            "Telemetry gap — consider enabling enhanced logging">
-
-          ---
-
-          ### New D&R Rules Created
-
-          <If rules were created:>
-          | Rule Name | Detects | Unit Tests | Replay (24h) | Status | Web UI |
-          |-----------|---------|------------|--------------|--------|--------|
-          | bas-t1003-lsass-access | LSASS credential dump | PASS | 0 FP | DISABLED | [View](https://app.limacharlie.io/orgs/<oid>/dr-rules/bas-t1003-lsass-access) |
-
-          **To enable**: Click the "View" link for each rule to review and enable it in the web UI.
-
-          <If no rules were created:>
-          No new rules needed — all techniques were detected by existing coverage.
-
-          ---
-
-          ### Historical Trend
-
-          <If BAS history has more than 1 run, include a trend:>
-          | Date | Scenario | Platform | Coverage | Rules Created |
-          |------|----------|----------|----------|--------------|
-          | <date> | <scenario> | <platform> | <X>% | <N> |
-          | <date> | <scenario> | <platform> | <Y>% | <N> |
-
-          **Trend**: <Improving / Stable / Declining> — <brief explanation>
-
-          <If first run:>
-          This is the first BAS simulation. Historical trends will appear after subsequent runs.
-
-          ---
-
-          ### Recommendations
-
-          1. <Enable newly created D&R rules after review>
-          2. <Address telemetry gaps if any (e.g., enable Sysmon, enable script block logging)>
-          3. <Suggest next simulation focus based on untested tactics>
-          4. <Note any techniques that could not be tested on this platform>
-
-          ---
-
-          ### MDR Provider Notes
-
-          - This simulation was fully automated by the BAS Team (daily cadence)
-          - New rules are created DISABLED pending human review
-          - Detection history is tracked in the `bas-history` lookup
-          - Coverage trends are cumulative — each run tests different techniques
-          - Share this report with your customer as evidence of proactive security validation
-          - Consider scheduling customer-facing BAS summaries via the Customer Report agent
+          <your report content here — no templates, no placeholders, only real data>
           REPORTEOF
           limacharlie case add-note --case-number <case_number> --type analysis \
             --input-file /tmp/bas-report.md --oid <oid> --output yaml
