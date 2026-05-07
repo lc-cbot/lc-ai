@@ -9,6 +9,16 @@
   },
   "plugins": [
     {
+      "name": "lc-fundamentals",
+      "description": "LimaCharlie platform concept map and deep fundamentals — orients LLMs to core concepts, event model, routing object, behavioral detection patterns, stateful rules, suppression, output streams, FIM, event collection, and common gotchas.",
+      "source": "./marketplace/plugins/lc-fundamentals",
+      "version": "1.0.0",
+      "author": {
+        "name": "LimaCharlie",
+        "email": "support@limacharlie.io"
+      }
+    },
+    {
       "name": "lc-essentials",
       "description": "Core LimaCharlie skills for CLI-based API access, detection engineering, sensor tasking, case investigation, and fleet health monitoring.",
       "source": "./marketplace/plugins/lc-essentials",
@@ -23,6 +33,16 @@
       "description": "Advanced LimaCharlie skills for MSSP reporting, fleet coverage, threat intelligence, adapter management, IaC, onboarding, and HTML dashboards. Requires lc-essentials plugin.",
       "source": "./marketplace/plugins/lc-advanced-skills",
       "version": "1.2.0",
+      "author": {
+        "name": "LimaCharlie",
+        "email": "support@limacharlie.io"
+      }
+    },
+    {
+      "name": "lc-compliance",
+      "description": "Interactive compliance skills for LimaCharlie: control-to-capability lookups, ad-hoc gap analysis, and guided agent deployment across CMMC, NIST 800-53, PCI DSS, HIPAA, SOC 2, ISO 27001, and CIS v8. Bundles framework reference docs and case-reviewer agent manifests.",
+      "source": "./marketplace/plugins/lc-compliance",
+      "version": "1.0.0",
       "author": {
         "name": "LimaCharlie",
         "email": "support@limacharlie.io"

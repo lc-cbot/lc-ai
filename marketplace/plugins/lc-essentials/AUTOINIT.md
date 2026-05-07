@@ -35,6 +35,62 @@ limacharlie case export --case-number <case_number> --with-data ./case-export --
 
 The cases extension creates cases from detections via D&R rules and extension requests. Cases can also be created without detections for ad-hoc investigations. Use `limacharlie case --ai-help` for full command reference. See the `case-investigation` skill for the full investigation workflow.
 
+### Feedback CLI
+
+The Feedback extension (`ext-feedback`) has first-class CLI support via `limacharlie feedback`:
+```bash
+# Channel management
+limacharlie feedback channel list --oid <oid> --output yaml
+limacharlie feedback channel add --name ops-slack --type slack --output-name my-slack-output --oid <oid> --output yaml
+limacharlie feedback channel add --name web-default --type web --oid <oid> --output yaml
+limacharlie feedback channel remove --name old-channel --oid <oid> --output yaml
+
+# Feedback requests
+limacharlie feedback request-approval --channel ops-slack --question "Isolate host-01?" --destination case --case-id 42 --oid <oid> --output yaml
+limacharlie feedback request-approval --channel ops-slack --question "Block IP?" --destination playbook --playbook block-ip --timeout 300 --timeout-choice denied --oid <oid> --output yaml
+limacharlie feedback request-ack --channel ops-slack --question "Alert: lateral movement detected" --destination case --case-id 42 --oid <oid> --output yaml
+limacharlie feedback request-question --channel web-default --question "What is the root cause?" --destination case --case-id 42 --oid <oid> --output yaml
+```
+
+The feedback extension sends interactive approval prompts, acknowledgement requests, or free-form questions to channels (Slack, Telegram, Teams, Email, or built-in Web UI). Responses are dispatched to a case (as a note), a playbook (as a trigger), or an ai_agent (starts an AI session with the response data). Channel types: `web` (built-in, no output needed), `slack`, `email`, `telegram`, `ms_teams` (each requires a Tailored Output). Use `limacharlie feedback --ai-help` for full command reference.
+
+### AI Skills CLI
+
+AI skills (reusable agent capabilities, stored in the `ai_skill` hive) have a dedicated top-level command:
+```bash
+limacharlie ai-skill list --oid <oid> --output yaml
+limacharlie ai-skill get --key <name> --oid <oid> --output yaml
+limacharlie ai-skill set --key <name> --input-file skill.yaml --oid <oid>
+limacharlie ai-skill enable --key <name> --oid <oid>
+limacharlie ai-skill disable --key <name> --oid <oid>
+limacharlie ai-skill delete --key <name> --oid <oid>
+```
+
+### AI Memory CLI
+
+AI agent memories (the `ai_memory` hive) are partial-merge: each agent has one record (keyed by its agent identifier via `--key`), and individual memories within that record are addressed by `--memory-name`. A `set` on one memory leaves the other memories on the same record untouched.
+
+The agent identifier passed to `--key` is the name/email/ident from the caller's JWT — for API-key auth this is typically the **API Key name**, for user OAuth it's the user's email. So when an agent is authenticated through an API key called `triage-bot`, its memories live under `--key triage-bot`. List records with `ai-memory list-records` to see what's already in use.
+```bash
+limacharlie ai-memory list-records --oid <oid> --output yaml             # All agent records
+limacharlie ai-memory list --key <agent_id> --oid <oid> --output yaml
+limacharlie ai-memory get --key <agent_id> --memory-name <name> --oid <oid> --output yaml
+limacharlie ai-memory set --key <agent_id> --memory-name <name> --content "..." --oid <oid>
+limacharlie ai-memory delete --key <agent_id> --memory-name <name> --oid <oid>
+limacharlie ai-memory delete-record --key <agent_id> --oid <oid>         # Wipe an entire agent's memories
+```
+
+### Hive Schema Inspection
+
+Before writing a Hive record, inspect its schema:
+```bash
+limacharlie hive schema --hive-name <hive_name> --oid <oid> --output yaml
+```
+Then validate the record against the schema before committing:
+```bash
+limacharlie hive validate --hive-name <hive_name> --key <key> --input-file <file> --oid <oid>
+```
+
 ## Required Tool
 
 **ALWAYS use the `limacharlie` CLI via Bash** for all LimaCharlie API operations. Never call MCP tools directly.
@@ -76,6 +132,8 @@ To see all permissions (verbose): `limacharlie auth whoami --show-perms --output
 ### 2. Always Pass `--output yaml`
 
 All CLI commands should include `--output yaml` for machine-readable output that is more token-efficient than JSON.
+
+Available formats: `json`, `yaml`, `toon`, `csv`, `table`, `jsonl`. `toon` (Token-Oriented Object Notation) is even more token-efficient than YAML for tabular array data — use it when piping large list outputs back into the model.
 
 ### 3. Use `--filter` to Reduce Output
 
@@ -194,6 +252,29 @@ Sensor selectors use [bexpr](https://github.com/hashicorp/go-bexpr) syntax. Use 
 ## Extensions
 
 Not all extensions have a configuration. To check subscriptions: `limacharlie extension list --oid <oid> --output yaml`.
+
+### Extension Config as Feature Configuration
+
+Several LimaCharlie features visible in the web UI are configured as **extension configs** in the `extension_config` hive. When a user refers to these by their web UI name, use the corresponding extension config commands:
+
+| Web UI Feature | Extension Name | CLI Commands |
+|---|---|---|
+| Artifact Collection Rules | `ext-artifact` | `limacharlie extension config-get/config-set --name ext-artifact` |
+| File & Registry Integrity Monitoring | `ext-integrity` | `limacharlie extension config-get/config-set --name ext-integrity` |
+| EPP / Defender Integration | `ext-epp` | `limacharlie extension config-get/config-set --name ext-epp` |
+| Exfil Watch | `ext-exfil` | `limacharlie extension config-get/config-set --name ext-exfil` |
+
+To list all extension configs for an org: `limacharlie extension config-list --oid <oid> --output yaml`
+To view an extension's config schema: `limacharlie extension schema --name <ext-name> --oid <oid> --output yaml`
+
+### Copying Extension Configs Between Orgs
+
+1. Export from source: `limacharlie extension config-get --name <ext-name> --oid <source-oid> --output yaml`
+2. Extract the `data:` section and write to a file
+3. Import to target: `limacharlie extension config-set --name <ext-name> --input-file <file> --oid <target-oid>`
+4. Enable if needed: `limacharlie hive enable --hive-name extension_config --key <ext-name> --oid <target-oid>`
+
+Note: the target org must already be subscribed to the extension (`limacharlie extension subscribe --name <ext-name> --oid <target-oid>`).
 
 ## Infrastructure Sync
 
